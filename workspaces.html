@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer Portal — Workspaces</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --bg-2: #141820;
+      --bg-3: #1a1f2e;
+      --surface: #1e2333;
+      --surface-2: #252b3d;
+      --surface-3: #2c334a;
+      --border: #2e3549;
+      --border-subtle: #242a3b;
+      --blue: #4f88ff;
+      --blue-dim: #1e3a6e;
+      --blue-glow: rgba(79,136,255,.15);
+      --green: #22c55e;
+      --green-dim: #14532d;
+      --green-glow: rgba(34,197,94,.12);
+      --red: #f87171;
+      --red-dim: #450a0a;
+      --red-glow: rgba(248,113,113,.12);
+      --yellow: #fbbf24;
+      --yellow-dim: #451a03;
+      --purple: #a78bfa;
+      --purple-dim: #2e1065;
+      --text-primary: #e8eaf0;
+      --text-secondary: #8b92a8;
+      --text-tertiary: #555e7a;
+      --text-blue: #6b9fff;
+      --radius: 6px;
+      --radius-sm: 4px;
+      --radius-lg: 10px;
+      --font: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --transition: .15s ease;
+    }
+
+    html, body { height: 100%; overflow: hidden; background: var(--bg); }
+
+    body {
+      font-family: var(--font);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ── LAYOUT ── */
+    .app { display: flex; height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: var(--bg-2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 18px 16px 16px;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+    }
+    .logo-mark {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #4f88ff, #7c5ff5);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 14px; font-weight: 700; color: var(--text-primary);
+      letter-spacing: -.3px; line-height: 1.1;
+    }
+    .logo-sub { font-size: 10px; font-weight: 400; color: var(--text-secondary); letter-spacing: .2px; }
+
+    .sidebar-section { padding: 12px 8px 4px; }
+    .sidebar-section-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--text-tertiary);
+      padding: 0 8px; margin-bottom: 4px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px; border-radius: var(--radius-sm);
+      cursor: pointer; text-decoration: none;
+      color: var(--text-secondary); font-size: 13px; font-weight: 400;
+      transition: background var(--transition), color var(--transition);
+      margin-bottom: 1px; position: relative;
+    }
+    .nav-item:hover { background: var(--surface); color: var(--text-primary); }
+    .nav-item.active {
+      background: var(--blue-dim); color: var(--blue);
+    }
+    .nav-item.active .nav-icon { color: var(--blue); }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: .7; }
+    .nav-item.active .nav-icon { opacity: 1; }
+    .nav-item:hover .nav-icon { opacity: 1; }
+    .nav-badge {
+      margin-left: auto; background: var(--surface-3); color: var(--text-secondary);
+      font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-item.active .nav-badge { background: var(--blue-dim); color: var(--blue); }
+
+    .sidebar-footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding: 10px 8px;
+    }
+    .user-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background var(--transition);
+    }
+    .user-row:hover { background: var(--surface); }
+    .user-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #4f88ff, #22c55e);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+    .user-role { font-size: 10px; color: var(--text-tertiary); }
+    .user-chevron { color: var(--text-tertiary); }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      height: 52px;
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 24px; gap: 12px;
+      flex-shrink: 0;
+    }
+    .topbar-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .topbar-count {
+      font-size: 12px; color: var(--text-secondary);
+      background: var(--surface-2); padding: 2px 8px; border-radius: 10px;
+    }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 6px 12px;
+      transition: border-color var(--transition);
+      width: 240px;
+    }
+    .search-bar:focus-within { border-color: var(--blue); }
+    .search-bar input {
+      border: none; background: transparent; outline: none;
+      font-family: var(--font); font-size: 13px; color: var(--text-primary);
+      width: 100%;
+    }
+    .search-bar input::placeholder { color: var(--text-tertiary); }
+    .search-icon { color: var(--text-tertiary); flex-shrink: 0; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 12px; font-weight: 500;
+      cursor: pointer; border: none; transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: #3a72e8; box-shadow: 0 0 0 3px var(--blue-glow); }
+    .btn-ghost {
+      background: transparent; color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface-2); color: var(--text-primary); }
+    .btn-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: transparent; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary); transition: all var(--transition);
+    }
+    .btn-icon:hover { background: var(--surface-2); color: var(--text-primary); }
+    .btn-icon.active { background: var(--blue-dim); color: var(--blue); border-color: var(--blue-dim); }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 24px; border-bottom: 1px solid var(--border);
+      background: var(--bg-2); flex-shrink: 0;
+    }
+    .stat-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 10px;
+      font-size: 11px; font-weight: 500; cursor: pointer;
+      border: 1px solid transparent; transition: all var(--transition);
+    }
+    .stat-chip.all   { background: var(--surface-2); color: var(--text-secondary); border-color: var(--border); }
+    .stat-chip.all.selected   { background: var(--surface-3); color: var(--text-primary); border-color: var(--border); }
+    .stat-chip.running { color: var(--green); background: var(--green-glow); border-color: rgba(34,197,94,.2); }
+    .stat-chip.stopped { color: var(--text-secondary); background: var(--surface-2); border-color: var(--border); }
+    .stat-chip.failed  { color: var(--red); background: var(--red-glow); border-color: rgba(248,113,113,.2); }
+    .stat-chip.starting { color: var(--blue); background: var(--blue-glow); border-color: rgba(79,136,255,.2); }
+    .stat-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .stat-dot.pulse { animation: pulse 1.8s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+    .stat-chip-label { font-weight: 600; }
+    .stat-sep { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+    .filter-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+    .sort-select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-secondary); font-family: var(--font); font-size: 12px;
+      padding: 4px 8px; border-radius: var(--radius-sm); cursor: pointer; outline: none;
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      flex: 1; overflow-y: auto; padding: 20px 24px;
+    }
+    .content::-webkit-scrollbar { width: 5px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── WORKSPACE TABLE ── */
+    .ws-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .ws-table thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+    .ws-table th {
+      text-align: left; padding: 0 12px 10px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--text-tertiary);
+      white-space: nowrap; cursor: pointer; user-select: none;
+    }
+    .ws-table th:hover { color: var(--text-secondary); }
+    .ws-table th .sort-indicator { margin-left: 4px; opacity: .5; }
+    .ws-table th:first-child { padding-left: 0; }
+    .ws-table th:last-child  { text-align: right; }
+
+    .ws-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background var(--transition);
+      cursor: pointer;
+    }
+    .ws-table tbody tr:hover { background: var(--surface); }
+    .ws-table tbody tr:last-child { border-bottom: none; }
+
+    .ws-table td {
+      padding: 14px 12px; vertical-align: middle;
+    }
+    .ws-table td:first-child { padding-left: 0; }
+    .ws-table td:last-child  { text-align: right; }
+
+    /* Workspace name cell */
+    .ws-name-cell { display: flex; align-items: center; gap: 12px; }
+    .ws-icon {
+      width: 34px; height: 34px; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .ws-icon-blue   { background: var(--blue-dim); }
+    .ws-icon-green  { background: var(--green-dim); }
+    .ws-icon-purple { background: var(--purple-dim); }
+    .ws-icon-yellow { background: var(--yellow-dim); }
+    .ws-icon-red    { background: var(--red-dim); }
+
+    .ws-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+    .ws-owner { font-size: 11px; color: var(--text-tertiary); }
+
+    /* Status */
+    .ws-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 9px; border-radius: 10px;
+      font-size: 11px; font-weight: 500; white-space: nowrap;
+    }
+    .ws-status.running  { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+    .ws-status.stopped  { background: var(--surface-2); color: var(--text-secondary); border: 1px solid var(--border); }
+    .ws-status.starting { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(79,136,255,.2); }
+    .ws-status.failed   { background: var(--red-glow); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
+    .ws-status.deleting { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(251,191,36,.2); }
+    .ws-status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .ws-status.running .ws-status-dot  { animation: pulse 1.8s ease-in-out infinite; }
+    .ws-status.starting .ws-status-dot { animation: pulse 1s ease-in-out infinite; }
+
+    /* Template cell */
+    .ws-template {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .template-icon {
+      width: 20px; height: 20px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; background: var(--surface-3); flex-shrink: 0;
+    }
+
+    /* Resources */
+    .ws-resources {
+      display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
+    }
+    .resource-chip {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 11px; color: var(--text-secondary);
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 2px 7px; border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+    .resource-chip svg { color: var(--text-tertiary); flex-shrink: 0; }
+
+    /* Last used */
+    .ws-time {
+      font-size: 12px; color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .ws-time-ago { color: var(--text-tertiary); font-size: 11px; }
+
+    /* Quick actions */
+    .ws-actions {
+      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+    }
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 11px; font-weight: 500;
+      cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--text-secondary);
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .action-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+    .action-btn.start:hover { border-color: var(--green); color: var(--green); background: var(--green-glow); }
+    .action-btn.stop:hover  { border-color: var(--red); color: var(--red); background: var(--red-glow); }
+    .action-btn.code:hover  { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
+    .action-btn-icon {
+      width: 26px; height: 26px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: transparent;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary); transition: all var(--transition);
+    }
+    .action-btn-icon:hover { background: var(--surface-2); color: var(--text-primary); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 80px 20px; text-align: center;
+    }
+    .empty-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 20px;
+    }
+    .empty-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .empty-desc { font-size: 13px; color: var(--text-secondary); max-width: 360px; line-height: 1.6; margin-bottom: 20px; }
+
+    /* ── CREATE WORKSPACE MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.7); z-index: 200;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); width: 540px; max-width: 95vw;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      border: none; background: transparent; cursor: pointer;
+      color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition);
+    }
+    .modal-close:hover { background: var(--surface-3); color: var(--text-primary); }
+
+    .modal-body { padding: 20px 24px; }
+    .form-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--text-secondary); margin-bottom: 8px; display: block;
+    }
+    .form-group { margin-bottom: 18px; }
+    .form-input {
+      width: 100%; background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 8px 12px;
+      font-family: var(--font); font-size: 13px; color: var(--text-primary);
+      outline: none; transition: border-color var(--transition);
+    }
+    .form-input:focus { border-color: var(--blue); }
+    .form-input::placeholder { color: var(--text-tertiary); }
+
+    .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .template-option {
+      padding: 12px; border-radius: var(--radius); cursor: pointer;
+      border: 1.5px solid var(--border); background: var(--bg-2);
+      transition: all var(--transition); display: flex; align-items: center; gap: 10px;
+    }
+    .template-option:hover { border-color: var(--blue); background: var(--blue-dim); }
+    .template-option.selected { border-color: var(--blue); background: var(--blue-dim); }
+    .template-option-icon { font-size: 20px; flex-shrink: 0; }
+    .template-option-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+    .template-option-desc { font-size: 11px; color: var(--text-secondary); }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+    }
+
+    /* ── WS DETAIL DRAWER ── */
+    .drawer-overlay {
+      display: none; position: fixed; inset: 0; z-index: 150;
+    }
+    .drawer-overlay.active { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 440px;
+      background: var(--bg-2); border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform .25s ease;
+      z-index: 160;
+    }
+    .drawer-overlay.active .drawer { transform: translateX(0); }
+    .drawer-scrim {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      backdrop-filter: blur(2px); z-index: 155;
+      display: none;
+    }
+    .drawer-overlay.active .drawer-scrim { display: block; }
+
+    .drawer-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .drawer-ws-icon {
+      width: 40px; height: 40px; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .drawer-ws-info { flex: 1; min-width: 0; }
+    .drawer-ws-name { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+    .drawer-ws-owner { font-size: 12px; color: var(--text-secondary); }
+    .drawer-close {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      border: none; background: transparent; cursor: pointer;
+      color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition); flex-shrink: 0;
+    }
+    .drawer-close:hover { background: var(--surface-2); color: var(--text-primary); }
+
+    .drawer-actions {
+      padding: 14px 20px; display: flex; gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+    .drawer-body::-webkit-scrollbar { width: 4px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .drawer-section { margin-bottom: 20px; }
+    .drawer-section-title {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .7px; color: var(--text-tertiary); margin-bottom: 10px;
+    }
+    .info-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 0; border-bottom: 1px solid var(--border-subtle);
+      font-size: 12px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-key { color: var(--text-secondary); }
+    .info-val { font-weight: 500; color: var(--text-primary); font-family: var(--font-mono); font-size: 11px; }
+
+    .app-list { display: flex; flex-direction: column; gap: 6px; }
+    .app-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--border);
+      cursor: pointer; transition: all var(--transition);
+    }
+    .app-item:hover { border-color: var(--blue); background: var(--blue-dim); }
+    .app-item-icon {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      background: var(--surface-3); display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .app-item-name { font-size: 12px; font-weight: 500; color: var(--text-primary); flex: 1; }
+    .app-item-open { color: var(--text-tertiary); }
+
+    .resource-list { display: flex; flex-direction: column; gap: 8px; }
+    .resource-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--border);
+    }
+    .resource-item-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      background: var(--surface-3); display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .resource-item-info { flex: 1; }
+    .resource-item-name { font-size: 12px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+    .resource-item-meta { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); }
+    .resource-status { font-size: 11px; font-weight: 500; }
+    .resource-status.ok   { color: var(--green); }
+    .resource-status.warn { color: var(--yellow); }
+
+    /* ── LOG TERMINAL ── */
+    .log-wrap {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .log-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .log-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .log-body {
+      padding: 10px 12px; font-family: var(--font-mono); font-size: 11px;
+      color: #8b92a8; line-height: 1.8; max-height: 160px; overflow-y: auto;
+    }
+    .log-body::-webkit-scrollbar { width: 3px; }
+    .log-body::-webkit-scrollbar-thumb { background: var(--border); }
+    .log-body .ok  { color: #22c55e; }
+    .log-body .err { color: #f87171; }
+    .log-body .dim { color: #555e7a; }
+    .log-body .info { color: #4f88ff; }
+
+    /* ── SCROLLBAR ── */
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+    /* ── TOOLTIP ── */
+    [title] { cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <a class="sidebar-logo" href="index.html" style="text-decoration:none">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">Developer Portal</div>
+        <div class="logo-sub">v2.4.1</div>
+      </div>
+    </a>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Develop</div>
+
+      <a class="nav-item" href="index.html">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Workbasket
+        <span class="nav-badge">12</span>
+      </a>
+
+      <a class="nav-item active" href="workspaces.html">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Workspaces
+        <span class="nav-badge">9</span>
+      </a>
+
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+        Templates
+        <span class="nav-badge">14</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </a>
+
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Groups
+      </a>
+
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Audit Logs
+      </a>
+
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Deployment
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar">SR</div>
+        <div class="user-info">
+          <div class="user-name">Shravan Reddy</div>
+          <div class="user-role">Admin · Contoso</div>
+        </div>
+        <svg class="user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <span class="topbar-title">Workspaces</span>
+      <span class="topbar-count" id="wsCount">9 workspaces</span>
+      <div class="topbar-right">
+        <div class="search-bar">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search workspaces…" id="wsSearch" oninput="filterWorkspaces()" />
+        </div>
+        <button class="btn-icon" title="Filter" id="filterBtn" onclick="this.classList.toggle('active')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </button>
+        <button class="btn-icon" title="Refresh" onclick="refreshWorkspaces()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+        <button class="btn btn-primary" onclick="showCreateModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Create Workspace
+        </button>
+      </div>
+    </div>
+
+    <!-- STATS / FILTER ROW -->
+    <div class="stats-row">
+      <button class="stat-chip all selected" onclick="filterByStatus('all', this)">
+        <span class="stat-chip-label">All</span>
+        <span style="color:var(--text-tertiary);font-size:11px">9</span>
+      </button>
+      <button class="stat-chip running" onclick="filterByStatus('running', this)">
+        <span class="stat-dot pulse"></span>
+        <span class="stat-chip-label">Running</span>
+        <span style="font-size:11px">4</span>
+      </button>
+      <button class="stat-chip stopped" onclick="filterByStatus('stopped', this)">
+        <span class="stat-dot" style="background:var(--text-tertiary)"></span>
+        <span class="stat-chip-label">Stopped</span>
+        <span style="font-size:11px">3</span>
+      </button>
+      <button class="stat-chip starting" onclick="filterByStatus('starting', this)">
+        <span class="stat-dot pulse"></span>
+        <span class="stat-chip-label">Starting</span>
+        <span style="font-size:11px">1</span>
+      </button>
+      <button class="stat-chip failed" onclick="filterByStatus('failed', this)">
+        <span class="stat-dot"></span>
+        <span class="stat-chip-label">Failed</span>
+        <span style="font-size:11px">1</span>
+      </button>
+      <div class="stat-sep"></div>
+      <div class="filter-right">
+        <select class="sort-select" onchange="sortWorkspaces(this.value)">
+          <option value="last_used">Sort: Last used</option>
+          <option value="name">Sort: Name</option>
+          <option value="status">Sort: Status</option>
+          <option value="owner">Sort: Owner</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <table class="ws-table">
+        <thead>
+          <tr>
+            <th>Workspace <span class="sort-indicator">↕</span></th>
+            <th>Status</th>
+            <th>Template</th>
+            <th>Resources</th>
+            <th>Last used <span class="sort-indicator">↓</span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="wsTableBody">
+          <!-- Rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── CREATE WORKSPACE MODAL ── -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Create workspace</span>
+      <button class="modal-close" onclick="hideCreateModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Workspace name</label>
+        <input class="form-input" type="text" placeholder="e.g. payment-fix-dev" id="newWsName" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Choose a template</label>
+        <div class="template-grid" id="templateGrid">
+          <div class="template-option selected" onclick="selectTemplate(this)">
+            <span class="template-option-icon">🐍</span>
+            <div>
+              <div class="template-option-name">Python Dev</div>
+              <div class="template-option-desc">Python 3.11 + Poetry</div>
+            </div>
+          </div>
+          <div class="template-option" onclick="selectTemplate(this)">
+            <span class="template-option-icon">⚡</span>
+            <div>
+              <div class="template-option-name">Node.js / TS</div>
+              <div class="template-option-desc">Node 20 + pnpm</div>
+            </div>
+          </div>
+          <div class="template-option" onclick="selectTemplate(this)">
+            <span class="template-option-icon">🦀</span>
+            <div>
+              <div class="template-option-name">Rust</div>
+              <div class="template-option-desc">Rust stable + cargo</div>
+            </div>
+          </div>
+          <div class="template-option" onclick="selectTemplate(this)">
+            <span class="template-option-icon">☕</span>
+            <div>
+              <div class="template-option-name">Java / Spring</div>
+              <div class="template-option-desc">JDK 21 + Maven</div>
+            </div>
+          </div>
+          <div class="template-option" onclick="selectTemplate(this)">
+            <span class="template-option-icon">🐹</span>
+            <div>
+              <div class="template-option-name">Go</div>
+              <div class="template-option-desc">Go 1.22 + modules</div>
+            </div>
+          </div>
+          <div class="template-option" onclick="selectTemplate(this)">
+            <span class="template-option-icon">💎</span>
+            <div>
+              <div class="template-option-name">Ruby on Rails</div>
+              <div class="template-option-desc">Ruby 3.3 + Bundler</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Region</label>
+        <select class="form-input">
+          <option>🇺🇸 US East (Virginia)</option>
+          <option>🇩🇪 EU West (Frankfurt)</option>
+          <option>🇸🇬 Asia Pacific (Singapore)</option>
+          <option>🇬🇧 EU West (London)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Instance size</label>
+        <select class="form-input">
+          <option>Small — 2 vCPU · 4 GB RAM · 20 GB disk</option>
+          <option selected>Medium — 4 vCPU · 8 GB RAM · 40 GB disk</option>
+          <option>Large — 8 vCPU · 16 GB RAM · 80 GB disk</option>
+          <option>XL — 16 vCPU · 32 GB RAM · 160 GB disk</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="hideCreateModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createWorkspace()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Create workspace
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── WORKSPACE DRAWER ── -->
+<div class="drawer-overlay" id="wsDrawer">
+  <div class="drawer-scrim" onclick="closeDrawer()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-ws-icon" id="drawerIcon"></div>
+      <div class="drawer-ws-info">
+        <div class="drawer-ws-name" id="drawerName"></div>
+        <div class="drawer-ws-owner" id="drawerOwner"></div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-actions">
+      <button class="btn btn-primary" id="drawerMainAction" onclick="drawerAction()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start
+      </button>
+      <button class="btn btn-ghost" onclick="openVSCode()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        VS Code
+      </button>
+      <button class="btn btn-ghost" onclick="openTerminal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        Terminal
+      </button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-title">Info</div>
+        <div class="info-row"><span class="info-key">Workspace ID</span><span class="info-val" id="drawerWsId"></span></div>
+        <div class="info-row"><span class="info-key">Template</span><span class="info-val" id="drawerTemplate"></span></div>
+        <div class="info-row"><span class="info-key">Region</span><span class="info-val" id="drawerRegion"></span></div>
+        <div class="info-row"><span class="info-key">Instance</span><span class="info-val" id="drawerInstance"></span></div>
+        <div class="info-row"><span class="info-key">IP Address</span><span class="info-val" id="drawerIP"></span></div>
+        <div class="info-row"><span class="info-key">Created</span><span class="info-val" id="drawerCreated"></span></div>
+        <div class="info-row"><span class="info-key">Last built</span><span class="info-val" id="drawerBuilt"></span></div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Apps</div>
+        <div class="app-list">
+          <div class="app-item">
+            <div class="app-item-icon">💻</div>
+            <span class="app-item-name">VS Code (Web)</span>
+            <svg class="app-item-open" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </div>
+          <div class="app-item">
+            <div class="app-item-icon">🖥️</div>
+            <span class="app-item-name">Terminal</span>
+            <svg class="app-item-open" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </div>
+          <div class="app-item">
+            <div class="app-item-icon">🌐</div>
+            <span class="app-item-name">Port 3000 (Dev Server)</span>
+            <svg class="app-item-open" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Resources</div>
+        <div class="resource-list">
+          <div class="resource-item">
+            <div class="resource-item-icon">🖥️</div>
+            <div class="resource-item-info">
+              <div class="resource-item-name">main (docker_container)</div>
+              <div class="resource-item-meta" id="drawerCPU">4 vCPU · 8 GB RAM</div>
+            </div>
+            <span class="resource-status ok">● healthy</span>
+          </div>
+          <div class="resource-item">
+            <div class="resource-item-icon">💾</div>
+            <div class="resource-item-info">
+              <div class="resource-item-name">home (docker_volume)</div>
+              <div class="resource-item-meta">40 GB · ext4</div>
+            </div>
+            <span class="resource-status ok">● mounted</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Build log</div>
+        <div class="log-wrap">
+          <div class="log-header">
+            <div class="log-dot" style="background:#f87171;width:8px;height:8px;border-radius:50%"></div>
+            <div class="log-dot" style="background:#fbbf24;width:8px;height:8px;border-radius:50%"></div>
+            <div class="log-dot" style="background:#22c55e;width:8px;height:8px;border-radius:50%"></div>
+            <span style="margin-left:8px;font-size:11px;color:var(--text-tertiary)">build · latest</span>
+          </div>
+          <div class="log-body">
+            <div class="dim">2026-04-09 08:41:02 UTC</div>
+            <div class="info">→ Pulling image ghcr.io/contoso/dev-base:latest</div>
+            <div class="ok">✓ Image pulled (1.2 GB)</div>
+            <div class="info">→ Mounting home volume /home/coder</div>
+            <div class="ok">✓ Volume mounted</div>
+            <div class="info">→ Running init scripts…</div>
+            <div class="ok">✓ dotfiles applied</div>
+            <div class="ok">✓ VS Code server started on :13337</div>
+            <div class="ok" style="color:#4f88ff">✓ Workspace ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+const workspaces = [
+  {
+    id: 'ws-a1f3', name: 'payment-service-dev', owner: 'Shravan R.', ownerInitials: 'SR',
+    status: 'running', template: 'Node.js / TS', templateIcon: '⚡',
+    cpu: '4 vCPU', ram: '8 GB', disk: '40 GB',
+    lastUsed: '2 min ago', created: '2026-03-14', built: '2026-04-09 08:41',
+    region: 'US East (Virginia)', instance: 'medium · 4 vCPU · 8 GB',
+    ip: '10.0.0.41', icon: '⚡', iconColor: 'ws-icon-blue',
+  },
+  {
+    id: 'ws-b2d7', name: 'auth-refactor', owner: 'Ananya K.', ownerInitials: 'AK',
+    status: 'running', template: 'Go', templateIcon: '🐹',
+    cpu: '8 vCPU', ram: '16 GB', disk: '80 GB',
+    lastUsed: '18 min ago', created: '2026-03-20', built: '2026-04-09 07:05',
+    region: 'EU West (Frankfurt)', instance: 'large · 8 vCPU · 16 GB',
+    ip: '10.0.1.22', icon: '🐹', iconColor: 'ws-icon-green',
+  },
+  {
+    id: 'ws-c9e2', name: 'ml-pipeline-exp', owner: 'Priya M.', ownerInitials: 'PM',
+    status: 'starting', template: 'Python Dev', templateIcon: '🐍',
+    cpu: '16 vCPU', ram: '32 GB', disk: '160 GB',
+    lastUsed: 'just now', created: '2026-04-08', built: '2026-04-09 09:00',
+    region: 'Asia Pacific (Singapore)', instance: 'xl · 16 vCPU · 32 GB',
+    ip: 'Pending…', icon: '🐍', iconColor: 'ws-icon-purple',
+  },
+  {
+    id: 'ws-d4k8', name: 'frontend-overhaul', owner: 'Shravan R.', ownerInitials: 'SR',
+    status: 'running', template: 'Node.js / TS', templateIcon: '⚡',
+    cpu: '4 vCPU', ram: '8 GB', disk: '40 GB',
+    lastUsed: '1 hour ago', created: '2026-03-01', built: '2026-04-08 14:30',
+    region: 'US East (Virginia)', instance: 'medium · 4 vCPU · 8 GB',
+    ip: '10.0.0.57', icon: '⚡', iconColor: 'ws-icon-blue',
+  },
+  {
+    id: 'ws-e5m3', name: 'db-migration-test', owner: 'Lena R.', ownerInitials: 'LR',
+    status: 'stopped', template: 'Python Dev', templateIcon: '🐍',
+    cpu: '2 vCPU', ram: '4 GB', disk: '20 GB',
+    lastUsed: '3 hours ago', created: '2026-03-25', built: '2026-04-08 11:00',
+    region: 'EU West (Frankfurt)', instance: 'small · 2 vCPU · 4 GB',
+    ip: '—', icon: '🐍', iconColor: 'ws-icon-yellow',
+  },
+  {
+    id: 'ws-f7n1', name: 'rust-perf-bench', owner: 'Ananya K.', ownerInitials: 'AK',
+    status: 'failed', template: 'Rust', templateIcon: '🦀',
+    cpu: '8 vCPU', ram: '16 GB', disk: '80 GB',
+    lastUsed: '5 hours ago', created: '2026-04-05', built: '2026-04-09 06:45',
+    region: 'US East (Virginia)', instance: 'large · 8 vCPU · 16 GB',
+    ip: '—', icon: '🦀', iconColor: 'ws-icon-red',
+  },
+  {
+    id: 'ws-g3p9', name: 'infra-as-code', owner: 'Shravan R.', ownerInitials: 'SR',
+    status: 'stopped', template: 'Go', templateIcon: '🐹',
+    cpu: '4 vCPU', ram: '8 GB', disk: '40 GB',
+    lastUsed: 'Yesterday', created: '2026-03-10', built: '2026-04-08 09:00',
+    region: 'US East (Virginia)', instance: 'medium · 4 vCPU · 8 GB',
+    ip: '—', icon: '🐹', iconColor: 'ws-icon-green',
+  },
+  {
+    id: 'ws-h8q2', name: 'java-spring-api', owner: 'Lena R.', ownerInitials: 'LR',
+    status: 'running', template: 'Java / Spring', templateIcon: '☕',
+    cpu: '4 vCPU', ram: '8 GB', disk: '40 GB',
+    lastUsed: '30 min ago', created: '2026-02-20', built: '2026-04-09 08:00',
+    region: 'EU West (Frankfurt)', instance: 'medium · 4 vCPU · 8 GB',
+    ip: '10.0.1.89', icon: '☕', iconColor: 'ws-icon-yellow',
+  },
+  {
+    id: 'ws-i2r6', name: 'data-lake-etl', owner: 'Priya M.', ownerInitials: 'PM',
+    status: 'stopped', template: 'Python Dev', templateIcon: '🐍',
+    cpu: '2 vCPU', ram: '4 GB', disk: '20 GB',
+    lastUsed: '2 days ago', created: '2026-03-30', built: '2026-04-07 16:00',
+    region: 'Asia Pacific (Singapore)', instance: 'small · 2 vCPU · 4 GB',
+    ip: '—', icon: '🐍', iconColor: 'ws-icon-purple',
+  },
+];
+
+let activeFilter = 'all';
+let searchQuery  = '';
+
+function statusLabel(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function renderTable() {
+  let rows = workspaces;
+  if (activeFilter !== 'all') rows = rows.filter(w => w.status === activeFilter);
+  if (searchQuery) rows = rows.filter(w =>
+    w.name.toLowerCase().includes(searchQuery) ||
+    w.owner.toLowerCase().includes(searchQuery) ||
+    w.template.toLowerCase().includes(searchQuery)
+  );
+
+  document.getElementById('wsCount').textContent = rows.length + ' workspace' + (rows.length !== 1 ? 's' : '');
+
+  const running = (s) => s === 'running';
+
+  document.getElementById('wsTableBody').innerHTML = rows.map((ws, i) => `
+    <tr onclick="openDrawer(${workspaces.indexOf(ws)})">
+      <td>
+        <div class="ws-name-cell">
+          <div class="ws-icon ${ws.iconColor}">${ws.icon}</div>
+          <div>
+            <div class="ws-name">${ws.name}</div>
+            <div class="ws-owner">${ws.owner}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span class="ws-status ${ws.status}">
+          <span class="ws-status-dot"></span>
+          ${statusLabel(ws.status)}
+        </span>
+      </td>
+      <td>
+        <div class="ws-template">
+          <span class="template-icon">${ws.templateIcon}</span>
+          ${ws.template}
+        </div>
+      </td>
+      <td>
+        <div class="ws-resources">
+          <span class="resource-chip">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            ${ws.cpu}
+          </span>
+          <span class="resource-chip">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            ${ws.ram}
+          </span>
+          <span class="resource-chip">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12H2"/><path d="M5 12V5h14v7"/><path d="M5 12v7h14v-7"/></svg>
+            ${ws.disk}
+          </span>
+        </div>
+      </td>
+      <td>
+        <div class="ws-time">${ws.lastUsed}</div>
+      </td>
+      <td onclick="event.stopPropagation()">
+        <div class="ws-actions">
+          ${ws.status === 'running' || ws.status === 'starting' ? `
+            <button class="action-btn code" onclick="openVSCode()">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              VS Code
+            </button>
+            <button class="action-btn stop" onclick="toggleWs(${workspaces.indexOf(ws)}, event)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+              Stop
+            </button>
+          ` : `
+            <button class="action-btn start" onclick="toggleWs(${workspaces.indexOf(ws)}, event)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Start
+            </button>
+          `}
+          <button class="action-btn-icon" title="More options" onclick="event.stopPropagation()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterWorkspaces() {
+  searchQuery = document.getElementById('wsSearch').value.toLowerCase();
+  renderTable();
+}
+
+function filterByStatus(status, btn) {
+  activeFilter = status;
+  document.querySelectorAll('.stat-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  renderTable();
+}
+
+function sortWorkspaces(val) {
+  if (val === 'name')    workspaces.sort((a,b) => a.name.localeCompare(b.name));
+  if (val === 'status')  workspaces.sort((a,b) => a.status.localeCompare(b.status));
+  if (val === 'owner')   workspaces.sort((a,b) => a.owner.localeCompare(b.owner));
+  if (val === 'last_used') { /* default order */ }
+  renderTable();
+}
+
+function toggleWs(idx, event) {
+  event.stopPropagation();
+  const ws = workspaces[idx];
+  if (ws.status === 'running') {
+    ws.status = 'stopped'; ws.ip = '—';
+  } else if (ws.status === 'stopped' || ws.status === 'failed') {
+    ws.status = 'starting'; ws.lastUsed = 'just now';
+    setTimeout(() => { ws.status = 'running'; ws.ip = '10.0.0.' + Math.floor(Math.random()*200+10); renderTable(); }, 2000);
+  }
+  renderTable();
+}
+
+function refreshWorkspaces() {
+  const btn = document.querySelector('[title="Refresh"]');
+  btn.style.animation = 'spin .6s linear';
+  setTimeout(() => { btn.style.animation = ''; renderTable(); }, 700);
+}
+
+/* ── DRAWER ── */
+let activeWsIdx = null;
+
+function openDrawer(idx) {
+  activeWsIdx = idx;
+  const ws = workspaces[idx];
+  document.getElementById('drawerIcon').className = 'drawer-ws-icon ws-icon ' + ws.iconColor;
+  document.getElementById('drawerIcon').textContent = ws.icon;
+  document.getElementById('drawerName').textContent = ws.name;
+  document.getElementById('drawerOwner').textContent = ws.owner + ' · ' + ws.status.charAt(0).toUpperCase() + ws.status.slice(1);
+  document.getElementById('drawerWsId').textContent = ws.id;
+  document.getElementById('drawerTemplate').textContent = ws.templateIcon + ' ' + ws.template;
+  document.getElementById('drawerRegion').textContent = ws.region;
+  document.getElementById('drawerInstance').textContent = ws.instance;
+  document.getElementById('drawerIP').textContent = ws.ip;
+  document.getElementById('drawerCreated').textContent = ws.created;
+  document.getElementById('drawerBuilt').textContent = ws.built;
+  document.getElementById('drawerCPU').textContent = ws.cpu + ' · ' + ws.ram + ' RAM';
+
+  const mainAction = document.getElementById('drawerMainAction');
+  if (ws.status === 'running' || ws.status === 'starting') {
+    mainAction.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg> Stop`;
+    mainAction.style.background = 'var(--red)';
+  } else {
+    mainAction.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start`;
+    mainAction.style.background = 'var(--blue)';
+  }
+
+  document.getElementById('wsDrawer').classList.add('active');
+}
+
+function closeDrawer() {
+  document.getElementById('wsDrawer').classList.remove('active');
+  activeWsIdx = null;
+}
+
+function drawerAction() {
+  if (activeWsIdx === null) return;
+  const ws = workspaces[activeWsIdx];
+  const fakeEvent = { stopPropagation: () => {} };
+  toggleWs(activeWsIdx, fakeEvent);
+  closeDrawer();
+}
+
+function openVSCode() {
+  alert('Opening VS Code… (would launch code-server in a real deployment)');
+}
+function openTerminal() {
+  alert('Opening terminal… (would open SSH/web terminal in a real deployment)');
+}
+
+/* ── CREATE MODAL ── */
+function showCreateModal() {
+  document.getElementById('createModal').classList.add('active');
+}
+function hideCreateModal() {
+  document.getElementById('createModal').classList.remove('active');
+}
+function selectTemplate(el) {
+  document.querySelectorAll('.template-option').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function createWorkspace() {
+  const name = document.getElementById('newWsName').value.trim();
+  if (!name) { document.getElementById('newWsName').focus(); return; }
+  const tmpl = document.querySelector('.template-option.selected');
+  const tmplName = tmpl ? tmpl.querySelector('.template-option-name').textContent : 'Node.js / TS';
+  const tmplIcon = tmpl ? tmpl.querySelector('.template-option-icon').textContent : '⚡';
+  const colors = ['ws-icon-blue','ws-icon-green','ws-icon-purple','ws-icon-yellow'];
+  workspaces.unshift({
+    id: 'ws-' + Math.random().toString(36).slice(2,6),
+    name, owner: 'Shravan R.', ownerInitials: 'SR',
+    status: 'starting', template: tmplName, templateIcon: tmplIcon,
+    cpu: '4 vCPU', ram: '8 GB', disk: '40 GB',
+    lastUsed: 'just now', created: new Date().toISOString().slice(0,10), built: 'Building…',
+    region: 'US East (Virginia)', instance: 'medium · 4 vCPU · 8 GB',
+    ip: 'Pending…', icon: tmplIcon, iconColor: colors[Math.floor(Math.random()*colors.length)],
+  });
+  hideCreateModal();
+  document.getElementById('newWsName').value = '';
+  renderTable();
+  setTimeout(() => { workspaces[0].status = 'running'; workspaces[0].ip = '10.0.0.' + Math.floor(Math.random()*200+10); renderTable(); }, 2500);
+}
+
+document.getElementById('createModal').addEventListener('click', function(e) {
+  if (e.target === this) hideCreateModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { hideCreateModal(); closeDrawer(); }
+});
+
+renderTable();
+</script>
+</body>
+</html>

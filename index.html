@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WorkItem Agent — Bug Fixer</title>
+  <title>Developer Portal — Workbasket</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -65,8 +65,16 @@
     .topnav-logo {
       display: flex; align-items: center; gap: 8px;
       font-size: 15px; font-weight: 600; color: var(--text-primary);
-      letter-spacing: -.3px;
+      letter-spacing: -.3px; text-decoration: none;
     }
+    .topnav-nav { display: flex; align-items: center; gap: 2px; margin-left: 8px; }
+    .topnav-navlink {
+      font-size: 13px; font-weight: 500; color: var(--text-secondary);
+      padding: 5px 10px; border-radius: var(--radius-sm); text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .topnav-navlink:hover { background: var(--surface-2); color: var(--text-primary); }
+    .topnav-navlink.active { background: var(--blue-light); color: var(--blue); }
     .topnav-logo svg { color: var(--blue); }
     .topnav-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
     .topnav-breadcrumb {
@@ -743,20 +751,17 @@
 
 <!-- TOP NAV -->
 <nav class="topnav">
-  <div class="topnav-logo">
+  <a class="topnav-logo" href="index.html">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
     </svg>
-    WorkItem Agent
-  </div>
+    Developer Portal
+  </a>
   <div class="topnav-divider"></div>
-  <div class="topnav-breadcrumb">
-    <span>Contoso</span>
-    <span class="breadcrumb-sep">›</span>
-    <span>Platform Engineering</span>
-    <span class="breadcrumb-sep">›</span>
-    <span>Sprint 24</span>
-  </div>
+  <nav class="topnav-nav">
+    <a class="topnav-navlink active" href="index.html">Workbasket</a>
+    <a class="topnav-navlink" href="workspaces.html">Workspaces</a>
+  </nav>
   <div class="topnav-right">
     <button class="btn-icon" title="Notifications">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
