@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="shared.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -48,50 +49,6 @@
       font-size: 13px;
       line-height: 1.5;
     }
-
-    /* ── SHARED TOP NAV ── */
-    .topnav {
-      height: 52px; background: #ffffff; border-bottom: 1px solid #e8eaed;
-      display: flex; align-items: center; padding: 0 20px; gap: 0;
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      box-shadow: 0 1px 3px rgba(60,64,67,.08);
-    }
-    .topnav-logo {
-      display: flex; align-items: center; gap: 9px;
-      font-size: 14px; font-weight: 700; color: #202124;
-      letter-spacing: -.3px; text-decoration: none;
-      padding-right: 20px; flex-shrink: 0;
-    }
-    .topnav-logo-mark {
-      width: 26px; height: 26px; border-radius: 6px;
-      background: linear-gradient(135deg, #4285f4, #7c5ff5);
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .topnav-divider { width: 1px; height: 20px; background: #e8eaed; margin: 0 4px; flex-shrink: 0; }
-    .topnav-nav { display: flex; align-items: stretch; height: 100%; gap: 0; margin-left: 4px; }
-    .topnav-navlink {
-      display: flex; align-items: center;
-      font-size: 13px; font-weight: 500; color: #5f6368;
-      padding: 0 14px; text-decoration: none;
-      border-bottom: 2px solid transparent;
-      transition: color .15s, border-color .15s; white-space: nowrap;
-    }
-    .topnav-navlink:hover { color: #202124; }
-    .topnav-navlink.active { color: #1a73e8; border-bottom-color: #1a73e8; }
-    .topnav-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-    .topnav-avatar {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: linear-gradient(135deg, #4285f4, #34a853);
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0;
-    }
-    .topnav-btn-icon {
-      width: 30px; height: 30px; border-radius: 5px;
-      border: none; background: transparent; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: #5f6368; transition: background .15s, color .15s;
-    }
-    .topnav-btn-icon:hover { background: #f1f3f4; color: #202124; }
 
     /* ── LAYOUT ── */
     .layout {
