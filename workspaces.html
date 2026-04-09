@@ -319,22 +319,23 @@
 
     /* Quick actions */
     .ws-actions {
-      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+      display: flex; align-items: center; justify-content: flex-end; gap: 4px;
+      opacity: 0; transition: opacity var(--transition);
     }
+    .ws-table tbody tr:hover .ws-actions { opacity: 1; }
     .action-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 5px 10px; border-radius: var(--radius-sm);
-      font-family: var(--font); font-size: 11px; font-weight: 500;
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      display: inline-flex; align-items: center; justify-content: center;
       cursor: pointer; border: 1px solid var(--border);
       background: transparent; color: var(--text-secondary);
-      transition: all var(--transition); white-space: nowrap;
+      transition: all var(--transition);
     }
-    .action-btn:hover { background: var(--surface-2); color: var(--text-primary); }
-    .action-btn.start:hover { border-color: var(--green); color: var(--green); background: var(--green-glow); }
-    .action-btn.stop:hover  { border-color: var(--red); color: var(--red); background: var(--red-glow); }
-    .action-btn.code:hover  { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
+    .action-btn:hover { background: var(--surface-2); color: var(--text-primary); border-color: var(--text-tertiary); }
+    .action-btn.start:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+    .action-btn.stop:hover  { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+    .action-btn.code:hover  { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
     .action-btn-icon {
-      width: 26px; height: 26px; border-radius: var(--radius-sm);
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
       border: 1px solid var(--border); background: transparent;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       color: var(--text-secondary); transition: all var(--transition);
@@ -1054,18 +1055,15 @@ function renderTable() {
       <td onclick="event.stopPropagation()">
         <div class="ws-actions">
           ${ws.status === 'running' || ws.status === 'starting' ? `
-            <button class="action-btn code" onclick="openVSCode()">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-              VS Code
+            <button class="action-btn code" title="Open VS Code" onclick="openVSCode()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </button>
-            <button class="action-btn stop" onclick="toggleWs(${workspaces.indexOf(ws)}, event)">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
-              Stop
+            <button class="action-btn stop" title="Stop workspace" onclick="toggleWs(${workspaces.indexOf(ws)}, event)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
             </button>
           ` : `
-            <button class="action-btn start" onclick="toggleWs(${workspaces.indexOf(ws)}, event)">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              Start
+            <button class="action-btn start" title="Start workspace" onclick="toggleWs(${workspaces.indexOf(ws)}, event)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </button>
           `}
           <button class="action-btn-icon" title="More options" onclick="event.stopPropagation()">
