@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkItem Agent — Bug Fixer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --surface-2: #f1f3f4;
+      --border: #e8eaed;
+      --border-subtle: #f1f3f4;
+      --blue: #1a73e8;
+      --blue-light: #e8f0fe;
+      --blue-mid: #4285f4;
+      --green: #137333;
+      --green-light: #e6f4ea;
+      --green-chip: #34a853;
+      --red: #c5221f;
+      --red-light: #fce8e6;
+      --orange: #e37400;
+      --orange-light: #fef7e0;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-tertiary: #9aa0a6;
+      --text-blue: #1a73e8;
+      --radius: 8px;
+      --radius-sm: 4px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(60,64,67,.12), 0 1px 2px rgba(60,64,67,.08);
+      --shadow-md: 0 2px 6px rgba(60,64,67,.15), 0 1px 4px rgba(60,64,67,.1);
+      --font: 'Inter', 'Google Sans', sans-serif;
+      --font-mono: 'Google Sans Mono', 'Courier New', monospace;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ── TOP NAV ── */
+    .topnav {
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
+    .topnav-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 600; color: var(--text-primary);
+      letter-spacing: -.3px;
+    }
+    .topnav-logo svg { color: var(--blue); }
+    .topnav-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+    .topnav-breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-secondary); font-size: 13px;
+    }
+    .topnav-breadcrumb span:last-child { color: var(--text-primary); font-weight: 500; }
+    .breadcrumb-sep { color: var(--text-tertiary); }
+    .topnav-right {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, #4285f4, #34a853);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 12px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      border: none; background: transparent; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary); transition: background .15s;
+    }
+    .btn-icon:hover { background: var(--surface-2); }
+
+    /* ── LAYOUT ── */
+    .layout {
+      position: fixed;
+      top: 52px; bottom: 0; left: 0; right: 0;
+      display: flex;
+    }
+
+    /* ── COL 1: Work Items ── */
+    .col-workitems {
+      width: 20%;
+      min-width: 220px;
+      max-width: 280px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .col-header {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .col-header-top {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .col-title {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .7px; color: var(--text-secondary);
+    }
+    .badge-count {
+      background: var(--blue-light); color: var(--blue);
+      font-size: 10px; font-weight: 600; padding: 1px 6px;
+      border-radius: 10px;
+    }
+    .search-box {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface-2); border-radius: var(--radius-sm);
+      padding: 5px 8px; border: 1px solid transparent;
+      transition: border-color .15s, background .15s;
+    }
+    .search-box:focus-within {
+      background: var(--surface); border-color: var(--blue);
+    }
+    .search-box input {
+      border: none; background: transparent; outline: none;
+      font-family: var(--font); font-size: 12px; color: var(--text-primary);
+      width: 100%;
+    }
+    .search-box input::placeholder { color: var(--text-tertiary); }
+    .search-icon { color: var(--text-tertiary); flex-shrink: 0; }
+
+    .filter-tabs {
+      display: flex; gap: 4px; padding: 8px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .filter-tab {
+      font-size: 11px; font-weight: 500; padding: 3px 8px;
+      border-radius: 10px; cursor: pointer; border: none;
+      background: transparent; color: var(--text-secondary);
+      transition: background .15s, color .15s;
+    }
+    .filter-tab.active {
+      background: var(--blue-light); color: var(--blue);
+    }
+    .filter-tab:hover:not(.active) { background: var(--surface-2); }
+
+    .workitems-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+    .workitems-list::-webkit-scrollbar { width: 4px; }
+    .workitems-list::-webkit-scrollbar-track { background: transparent; }
+    .workitems-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .workitem-card {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background .12s, border-color .12s;
+      position: relative;
+    }
+    .workitem-card:hover { background: var(--surface-2); }
+    .workitem-card.selected {
+      background: var(--blue-light);
+      border-left-color: var(--blue);
+    }
+    .wi-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .wi-id {
+      font-size: 10px; font-weight: 600; color: var(--text-blue);
+      font-family: var(--font-mono);
+    }
+    .wi-priority {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .pri-critical { background: #c5221f; }
+    .pri-high     { background: #e37400; }
+    .pri-medium   { background: #f29900; }
+    .pri-low      { background: #34a853; }
+
+    .wi-title {
+      font-size: 12px; font-weight: 500; color: var(--text-primary);
+      line-height: 1.4; margin-bottom: 6px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .wi-meta {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .wi-state {
+      font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 10px;
+    }
+    .state-active    { background: var(--blue-light); color: var(--blue); }
+    .state-resolved  { background: var(--green-light); color: var(--green); }
+    .state-new       { background: #fce8e6; color: #c5221f; }
+    .state-testing   { background: var(--orange-light); color: var(--orange); }
+    .wi-assignee {
+      font-size: 10px; color: var(--text-tertiary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wi-sep { color: var(--border); font-size: 10px; }
+
+    /* ── COL 2: Bug Details ── */
+    .col-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .details-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px 0;
+      flex-shrink: 0;
+    }
+    .details-top {
+      display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+    }
+    .bug-type-icon {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      background: var(--red-light); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .details-title-group { flex: 1; min-width: 0; }
+    .details-wi-id {
+      font-size: 11px; font-weight: 600; color: var(--text-blue);
+      font-family: var(--font-mono); margin-bottom: 3px;
+    }
+    .details-title {
+      font-size: 17px; font-weight: 600; color: var(--text-primary);
+      line-height: 1.3; letter-spacing: -.2px;
+    }
+    .details-actions {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 12px; font-weight: 500;
+      cursor: pointer; border: none; transition: all .15s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--blue); color: #fff;
+    }
+    .btn-primary:hover { background: #1557b0; }
+    .btn-outline {
+      background: transparent; color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { background: var(--surface-2); }
+
+    .details-chips {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 500;
+    }
+    .chip-red    { background: var(--red-light); color: var(--red); }
+    .chip-blue   { background: var(--blue-light); color: var(--blue); }
+    .chip-orange { background: var(--orange-light); color: var(--orange); }
+    .chip-green  { background: var(--green-light); color: var(--green); }
+    .chip-gray   { background: var(--surface-2); color: var(--text-secondary); }
+
+    .details-meta-row {
+      display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .meta-item { display: flex; align-items: center; gap: 5px; }
+    .meta-label { font-size: 11px; color: var(--text-tertiary); }
+    .meta-value { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+    .meta-avatar {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, #4285f4, #34a853);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 600; color: #fff;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex; gap: 0;
+    }
+    .tab {
+      padding: 8px 16px; font-size: 13px; font-weight: 500;
+      color: var(--text-secondary); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+      display: flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--text-primary); }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-badge {
+      background: var(--surface-2); color: var(--text-secondary);
+      font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 8px;
+    }
+    .tab.active .tab-badge { background: var(--blue-light); color: var(--blue); }
+
+    /* ── TAB CONTENT ── */
+    .tab-content {
+      flex: 1; overflow-y: auto; padding: 20px 24px;
+    }
+    .tab-content::-webkit-scrollbar { width: 4px; }
+    .tab-content::-webkit-scrollbar-track { background: transparent; }
+    .tab-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── OVERVIEW TAB ── */
+    .overview-grid {
+      display: grid; grid-template-columns: 1fr 280px; gap: 16px;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--text-secondary); margin-bottom: 10px;
+    }
+    .description-text {
+      font-size: 13px; color: var(--text-primary); line-height: 1.7;
+    }
+    .description-text p { margin-bottom: 10px; }
+    .description-text p:last-child { margin-bottom: 0; }
+    .code-block {
+      background: #1e1e2e; border-radius: var(--radius-sm);
+      padding: 12px 14px; margin: 10px 0;
+      font-family: var(--font-mono); font-size: 12px;
+      color: #cdd6f4; overflow-x: auto; line-height: 1.6;
+    }
+    .code-block .kw  { color: #cba6f7; }
+    .code-block .str { color: #a6e3a1; }
+    .code-block .fn  { color: #89b4fa; }
+    .code-block .cm  { color: #6c7086; font-style: italic; }
+    .code-block .num { color: #fab387; }
+
+    .sidebar-card { margin-bottom: 12px; }
+    .detail-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0; border-bottom: 1px solid var(--border-subtle);
+      font-size: 12px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--text-secondary); }
+    .detail-val { font-weight: 500; color: var(--text-primary); text-align: right; }
+
+    .repro-steps { list-style: none; counter-reset: steps; }
+    .repro-steps li {
+      counter-increment: steps; padding: 6px 0 6px 28px;
+      position: relative; font-size: 12px; color: var(--text-primary);
+      border-bottom: 1px solid var(--border-subtle); line-height: 1.5;
+    }
+    .repro-steps li:last-child { border-bottom: none; }
+    .repro-steps li::before {
+      content: counter(steps);
+      position: absolute; left: 0; top: 6px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--blue-light); color: var(--blue);
+      font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .tag-list { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag {
+      font-size: 10px; padding: 2px 8px; border-radius: 10px;
+      background: var(--surface-2); color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ── AGENTS TAB ── */
+    .agents-section-title {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--text-secondary);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .agents-section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .agent-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+
+    .agent-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 18px;
+      cursor: pointer; transition: box-shadow .15s, border-color .15s, transform .12s;
+      position: relative; overflow: hidden;
+    }
+    .agent-card:hover {
+      box-shadow: var(--shadow-md); border-color: var(--blue);
+      transform: translateY(-1px);
+    }
+    .agent-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .agent-card.blue::before { background: linear-gradient(90deg, #4285f4, #1a73e8); }
+    .agent-card.green::before { background: linear-gradient(90deg, #34a853, #137333); }
+    .agent-card.purple::before { background: linear-gradient(90deg, #9334e6, #7627bb); }
+
+    .agent-icon {
+      width: 40px; height: 40px; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px; font-size: 20px;
+    }
+    .agent-icon.blue   { background: var(--blue-light); }
+    .agent-icon.green  { background: var(--green-light); }
+    .agent-icon.purple { background: #f3e8fd; }
+
+    .agent-name {
+      font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;
+    }
+    .agent-desc {
+      font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;
+    }
+    .agent-skills {
+      display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px;
+    }
+    .skill-tag {
+      font-size: 10px; padding: 2px 7px; border-radius: 10px;
+      background: var(--surface-2); color: var(--text-secondary); font-weight: 500;
+    }
+    .btn-run {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 7px 12px; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid; transition: all .15s;
+    }
+    .btn-run.blue   { border-color: var(--blue); color: var(--blue); background: transparent; }
+    .btn-run.blue:hover { background: var(--blue); color: #fff; }
+    .btn-run.green  { border-color: var(--green-chip); color: var(--green); background: transparent; }
+    .btn-run.green:hover { background: var(--green-chip); color: #fff; }
+    .btn-run.purple { border-color: #9334e6; color: #9334e6; background: transparent; }
+    .btn-run.purple:hover { background: #9334e6; color: #fff; }
+
+    .agent-status-dot {
+      width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+      animation: pulse 2s infinite;
+    }
+    .status-ready   { background: var(--green-chip); animation: none; }
+    .status-running { background: var(--blue); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    .agent-meta {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; color: var(--text-tertiary); margin-bottom: 12px;
+    }
+
+    /* Custom agent builder */
+    .custom-agent-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px;
+    }
+    .custom-agent-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+    }
+    .custom-agent-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #1a73e8, #9334e6);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .custom-agent-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .custom-agent-subtitle { font-size: 12px; color: var(--text-secondary); margin-bottom: 14px; }
+
+    .prompt-area-wrapper { position: relative; margin-bottom: 12px; }
+    .prompt-area {
+      width: 100%; min-height: 90px;
+      background: var(--surface-2); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px;
+      font-family: var(--font); font-size: 13px; color: var(--text-primary);
+      resize: vertical; outline: none; transition: border-color .15s, background .15s;
+      line-height: 1.6;
+    }
+    .prompt-area:focus {
+      background: var(--surface); border-color: var(--blue);
+    }
+    .prompt-area::placeholder { color: var(--text-tertiary); }
+
+    .quick-prompts {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+    }
+    .quick-prompt {
+      font-size: 11px; padding: 4px 10px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-secondary); cursor: pointer; transition: all .15s;
+      font-family: var(--font);
+    }
+    .quick-prompt:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+    .custom-agent-actions {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .btn-run-custom {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 20px; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #1a73e8, #4285f4);
+      color: #fff; font-family: var(--font); font-size: 13px; font-weight: 600;
+      border: none; cursor: pointer; transition: opacity .15s, transform .1s;
+      box-shadow: 0 2px 8px rgba(26,115,232,.3);
+    }
+    .btn-run-custom:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-run-custom:active { transform: translateY(0); }
+    .btn-clear {
+      padding: 9px 14px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: transparent;
+      font-family: var(--font); font-size: 12px; color: var(--text-secondary);
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-clear:hover { background: var(--surface-2); }
+    .hint-text {
+      font-size: 11px; color: var(--text-tertiary); margin-left: auto;
+    }
+
+    /* ── BUILD LOGS TAB ── */
+    .build-logs-toolbar {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    }
+    .log-filter {
+      font-size: 11px; padding: 4px 10px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-secondary); cursor: pointer; font-family: var(--font);
+      transition: all .15s;
+    }
+    .log-filter.active { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+    .log-filter:hover:not(.active) { background: var(--surface-2); }
+    .log-spacer { flex: 1; }
+    .log-search {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 4px 10px;
+    }
+    .log-search input {
+      border: none; background: transparent; outline: none;
+      font-family: var(--font); font-size: 12px; color: var(--text-primary);
+      width: 160px;
+    }
+    .log-search input::placeholder { color: var(--text-tertiary); }
+
+    .build-run-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-bottom: 12px;
+    }
+    .build-run-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; cursor: pointer;
+      transition: background .12s;
+    }
+    .build-run-header:hover { background: var(--surface-2); }
+    .build-status-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 11px;
+    }
+    .build-success { background: var(--green-light); color: var(--green); }
+    .build-failed  { background: var(--red-light); color: var(--red); }
+    .build-running { background: var(--blue-light); color: var(--blue); }
+    .build-run-info { flex: 1; min-width: 0; }
+    .build-run-title { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .build-run-meta { font-size: 11px; color: var(--text-tertiary); }
+    .build-run-dur { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-left: auto; margin-right: 8px; }
+    .chevron { transition: transform .2s; color: var(--text-tertiary); }
+    .build-run-card.expanded .chevron { transform: rotate(90deg); }
+
+    .log-terminal {
+      background: #1e1e2e; padding: 12px 16px;
+      font-family: var(--font-mono); font-size: 11.5px; line-height: 1.7;
+      color: #cdd6f4; max-height: 240px; overflow-y: auto;
+      display: none;
+    }
+    .build-run-card.expanded .log-terminal { display: block; }
+    .log-terminal::-webkit-scrollbar { width: 4px; }
+    .log-terminal::-webkit-scrollbar-thumb { background: #45475a; border-radius: 2px; }
+
+    .log-line { display: flex; gap: 12px; }
+    .log-time { color: #6c7086; flex-shrink: 0; }
+    .log-info    { color: #89b4fa; }
+    .log-success { color: #a6e3a1; }
+    .log-warn    { color: #f9e2af; }
+    .log-error   { color: #f38ba8; }
+    .log-dim     { color: #6c7086; }
+
+    /* ── COL 3: Chat ── */
+    .col-chat {
+      width: 20%;
+      min-width: 220px;
+      max-width: 280px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      padding: 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .chat-title {
+      font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;
+    }
+    .chat-subtitle { font-size: 11px; color: var(--text-tertiary); }
+    .online-dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--green-chip); margin-right: 4px;
+    }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 12px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .msg {
+      max-width: 90%; font-size: 12px; line-height: 1.5;
+    }
+    .msg-ai {
+      align-self: flex-start;
+    }
+    .msg-user {
+      align-self: flex-end;
+    }
+    .msg-bubble {
+      padding: 8px 11px; border-radius: 12px; font-size: 12px; line-height: 1.5;
+    }
+    .msg-ai .msg-bubble {
+      background: var(--surface-2); color: var(--text-primary);
+      border-bottom-left-radius: 3px;
+    }
+    .msg-user .msg-bubble {
+      background: var(--blue); color: #fff;
+      border-bottom-right-radius: 3px;
+    }
+    .msg-time {
+      font-size: 10px; color: var(--text-tertiary); margin-top: 3px;
+      padding: 0 4px;
+    }
+    .msg-ai .msg-time { text-align: left; }
+    .msg-user .msg-time { text-align: right; }
+
+    .chat-suggestions {
+      padding: 8px 12px; border-top: 1px solid var(--border-subtle); flex-shrink: 0;
+    }
+    .suggestions-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--text-tertiary); margin-bottom: 6px;
+    }
+    .suggestion-btn {
+      display: block; width: 100%; text-align: left;
+      font-size: 11px; padding: 6px 9px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-secondary); cursor: pointer; margin-bottom: 5px;
+      font-family: var(--font); transition: all .15s; line-height: 1.4;
+    }
+    .suggestion-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+    .chat-input-area {
+      padding: 10px 12px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .chat-input-box {
+      display: flex; align-items: flex-end; gap: 6px;
+      background: var(--surface-2); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 7px 10px;
+      transition: border-color .15s;
+    }
+    .chat-input-box:focus-within { border-color: var(--blue); background: var(--surface); }
+    .chat-input-box textarea {
+      flex: 1; border: none; background: transparent; outline: none;
+      font-family: var(--font); font-size: 12px; color: var(--text-primary);
+      resize: none; min-height: 18px; max-height: 80px; line-height: 1.5;
+    }
+    .chat-input-box textarea::placeholder { color: var(--text-tertiary); }
+    .chat-send-btn {
+      width: 26px; height: 26px; border-radius: var(--radius-sm);
+      background: var(--blue); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .15s;
+    }
+    .chat-send-btn:hover { background: #1557b0; }
+    .chat-send-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+    /* ── RUNNING STATE (modal overlay) ── */
+    .running-overlay {
+      display: none;
+      position: fixed; inset: 0; background: rgba(32,33,36,.6);
+      z-index: 200; align-items: center; justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .running-overlay.active { display: flex; }
+    .running-card {
+      background: var(--surface); border-radius: var(--radius-lg);
+      padding: 32px 40px; max-width: 440px; width: 90%; text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,.2);
+    }
+    .spinner {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 3px solid var(--blue-light); border-top-color: var(--blue);
+      animation: spin .8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .running-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .running-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+    .running-log {
+      background: #1e1e2e; border-radius: var(--radius-sm); padding: 12px;
+      font-family: var(--font-mono); font-size: 11px; color: #a6e3a1;
+      text-align: left; line-height: 1.8; max-height: 120px; overflow-y: auto;
+    }
+    .btn-cancel {
+      margin-top: 16px; padding: 8px 20px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: transparent;
+      font-family: var(--font); font-size: 12px; color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .btn-cancel:hover { background: var(--surface-2); }
+
+    /* Scrollbar global */
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="topnav-logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+    </svg>
+    WorkItem Agent
+  </div>
+  <div class="topnav-divider"></div>
+  <div class="topnav-breadcrumb">
+    <span>Contoso</span>
+    <span class="breadcrumb-sep">›</span>
+    <span>Platform Engineering</span>
+    <span class="breadcrumb-sep">›</span>
+    <span>Sprint 24</span>
+  </div>
+  <div class="topnav-right">
+    <button class="btn-icon" title="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </button>
+    <button class="btn-icon" title="Settings">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <div class="avatar" title="Shravan Reddy">SR</div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- ── COLUMN 1: Work Items ── -->
+  <aside class="col-workitems">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="col-title">Work Items</span>
+        <span class="badge-count">12</span>
+      </div>
+      <div class="search-box">
+        <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search items…" />
+      </div>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active">All</button>
+      <button class="filter-tab">Active</button>
+      <button class="filter-tab">Mine</button>
+    </div>
+    <div class="workitems-list" id="workItemsList">
+      <!-- Items injected by JS -->
+    </div>
+  </aside>
+
+  <!-- ── COLUMN 2: Bug Details ── -->
+  <main class="col-details">
+    <div class="details-header">
+      <div class="details-top">
+        <div class="bug-type-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c5221f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="details-title-group">
+          <div class="details-wi-id">Bug #AB-4821</div>
+          <div class="details-title">Payment gateway timeout causes silent transaction failure on checkout</div>
+        </div>
+        <div class="details-actions">
+          <button class="btn btn-outline" onclick="showRunningOverlay('Quick Fix')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Quick Fix
+          </button>
+          <button class="btn btn-primary" onclick="switchTab('agents')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            Launch Agent
+          </button>
+        </div>
+      </div>
+
+      <div class="details-chips">
+        <span class="chip chip-red">● Critical</span>
+        <span class="chip chip-orange">⚡ High Priority</span>
+        <span class="chip chip-blue">Active</span>
+        <span class="chip chip-gray">Payments</span>
+        <span class="chip chip-gray">Backend</span>
+        <span class="chip chip-gray">Sprint 24</span>
+      </div>
+
+      <div class="details-meta-row">
+        <div class="meta-item">
+          <span class="meta-label">Assigned</span>
+          <div class="meta-avatar">SR</div>
+          <span class="meta-value">Shravan R.</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Reported</span>
+          <span class="meta-value">Apr 7, 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Target</span>
+          <span class="meta-value" style="color:#e37400">Apr 11, 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Environment</span>
+          <span class="meta-value">Production</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Votes</span>
+          <span class="meta-value">23</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('overview')" id="tab-overview">Overview</div>
+        <div class="tab" onclick="switchTab('agents')" id="tab-agents">
+          Agents <span class="tab-badge">3</span>
+        </div>
+        <div class="tab" onclick="switchTab('logs')" id="tab-logs">
+          Build Logs <span class="tab-badge">4</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content">
+
+      <!-- OVERVIEW TAB -->
+      <div class="tab-panel active" id="panel-overview">
+        <div class="overview-grid">
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-title">Description</div>
+              <div class="description-text">
+                <p>When the payment gateway (Stripe) takes longer than the configured 5s timeout, the system silently discards the response without rolling back the order state. The customer sees an error page, but the order record in the database is left in a <code style="background:var(--surface-2);padding:1px 5px;border-radius:3px;font-family:var(--font-mono);font-size:11px">PENDING</code> state, and no retry or notification is triggered.</p>
+                <p>This causes inventory to remain locked, duplicate charges on retry, and a broken customer experience. The root cause appears to be in the <code style="background:var(--surface-2);padding:1px 5px;border-radius:3px;font-family:var(--font-mono);font-size:11px">PaymentService.processCheckout()</code> method where the timeout exception is swallowed.</p>
+                <div class="code-block"><span class="cm">// PaymentService.ts — problematic section</span>
+<span class="kw">try</span> {
+  <span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">stripe.charges.create</span>(payload, { timeout: <span class="num">5000</span> });
+  <span class="kw">await</span> <span class="fn">order.setStatus</span>(<span class="str">'CONFIRMED'</span>);
+} <span class="kw">catch</span> (err) {
+  <span class="cm">// ⚠ timeout swallowed — order stays PENDING</span>
+  <span class="fn">logger.warn</span>(<span class="str">'Payment failed'</span>, err.message);
+}</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Reproduction Steps</div>
+              <ol class="repro-steps">
+                <li>Add items to cart and proceed to checkout with a valid card</li>
+                <li>Intercept the Stripe API call and introduce a 6-second artificial delay (use Charles Proxy or test environment flag <code style="background:var(--surface-2);padding:1px 4px;border-radius:3px;font-family:var(--font-mono);font-size:11px">STRIPE_DELAY_MS=6000</code>)</li>
+                <li>Submit the payment form and observe the error page returned to the user</li>
+                <li>Query the database: <code style="background:var(--surface-2);padding:1px 4px;border-radius:3px;font-family:var(--font-mono);font-size:11px">SELECT status FROM orders WHERE id = :id</code> — status is <strong>PENDING</strong></li>
+                <li>Confirm no retry event was published to the message queue</li>
+                <li>Attempt checkout again — observe potential duplicate charge</li>
+              </ol>
+            </div>
+          </div>
+
+          <div>
+            <div class="card sidebar-card">
+              <div class="card-title">Details</div>
+              <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">🐛 Bug</span></div>
+              <div class="detail-row"><span class="detail-key">State</span><span class="detail-val"><span class="chip chip-blue" style="font-size:10px;padding:1px 7px">Active</span></span></div>
+              <div class="detail-row"><span class="detail-key">Priority</span><span class="detail-val">🔴 Critical</span></div>
+              <div class="detail-row"><span class="detail-key">Severity</span><span class="detail-val">1 - Critical</span></div>
+              <div class="detail-row"><span class="detail-key">Story Points</span><span class="detail-val">5</span></div>
+              <div class="detail-row"><span class="detail-key">Area</span><span class="detail-val">Payments / Checkout</span></div>
+              <div class="detail-row"><span class="detail-key">Iteration</span><span class="detail-val">Sprint 24</span></div>
+              <div class="detail-row"><span class="detail-key">Build</span><span class="detail-val">v3.14.2</span></div>
+            </div>
+            <div class="card sidebar-card">
+              <div class="card-title">Related Work</div>
+              <div class="detail-row"><span class="detail-key" style="color:var(--blue)">AB-4819</span><span class="detail-val" style="font-size:11px;color:var(--text-secondary)">Stripe webhook</span></div>
+              <div class="detail-row"><span class="detail-key" style="color:var(--blue)">AB-4756</span><span class="detail-val" style="font-size:11px;color:var(--text-secondary)">Order state machine</span></div>
+              <div class="detail-row"><span class="detail-key" style="color:var(--blue)">AB-4701</span><span class="detail-val" style="font-size:11px;color:var(--text-secondary)">Retry service</span></div>
+            </div>
+            <div class="card sidebar-card">
+              <div class="card-title">Tags</div>
+              <div class="tag-list">
+                <span class="tag">payment-gateway</span>
+                <span class="tag">timeout</span>
+                <span class="tag">silent-failure</span>
+                <span class="tag">data-integrity</span>
+                <span class="tag">stripe</span>
+                <span class="tag">checkout</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AGENTS TAB -->
+      <div class="tab-panel" id="panel-agents">
+        <div class="agents-section-title">Pre-configured Agents</div>
+
+        <div class="agent-cards">
+          <!-- Agent 1 -->
+          <div class="agent-card blue">
+            <div class="agent-icon blue">🔍</div>
+            <div class="agent-name">Root Cause Analyzer</div>
+            <div class="agent-meta">
+              <span class="agent-status-dot status-ready"></span>
+              Ready · Runs in ~45s
+            </div>
+            <div class="agent-desc">Traces the bug through your codebase, pinpoints the exact line causing the issue, and generates a structured root-cause report with evidence.</div>
+            <div class="agent-skills">
+              <span class="skill-tag">Code traversal</span>
+              <span class="skill-tag">Stack analysis</span>
+              <span class="skill-tag">PR diff</span>
+            </div>
+            <button class="btn-run blue" onclick="showRunningOverlay('Root Cause Analyzer')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Agent
+            </button>
+          </div>
+
+          <!-- Agent 2 -->
+          <div class="agent-card green">
+            <div class="agent-icon green">🛠️</div>
+            <div class="agent-name">Auto Code Fixer</div>
+            <div class="agent-meta">
+              <span class="agent-status-dot status-ready"></span>
+              Ready · Runs in ~90s
+            </div>
+            <div class="agent-desc">Generates a production-ready fix, writes the patch with proper error handling and rollback logic, and opens a pull request for review.</div>
+            <div class="agent-skills">
+              <span class="skill-tag">Code generation</span>
+              <span class="skill-tag">PR creation</span>
+              <span class="skill-tag">Tests</span>
+            </div>
+            <button class="btn-run green" onclick="showRunningOverlay('Auto Code Fixer')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Agent
+            </button>
+          </div>
+
+          <!-- Agent 3 -->
+          <div class="agent-card purple">
+            <div class="agent-icon purple">🧪</div>
+            <div class="agent-name">Regression Test Writer</div>
+            <div class="agent-meta">
+              <span class="agent-status-dot status-ready"></span>
+              Ready · Runs in ~60s
+            </div>
+            <div class="agent-desc">Writes targeted unit and integration tests that catch this exact failure mode, ensuring it never regresses once fixed. Includes edge cases.</div>
+            <div class="agent-skills">
+              <span class="skill-tag">Jest / Vitest</span>
+              <span class="skill-tag">Mocking</span>
+              <span class="skill-tag">Coverage</span>
+            </div>
+            <button class="btn-run purple" onclick="showRunningOverlay('Regression Test Writer')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Agent
+            </button>
+          </div>
+        </div>
+
+        <div class="agents-section-title">Custom Agent</div>
+
+        <div class="custom-agent-box">
+          <div class="custom-agent-header">
+            <div class="custom-agent-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <span class="custom-agent-title">Build your own agent</span>
+          </div>
+          <div class="custom-agent-subtitle">Describe what you want the agent to do in plain English. Smart defaults handle the rest — no configuration needed.</div>
+
+          <div class="quick-prompts">
+            <button class="quick-prompt" onclick="fillPrompt(this)">Analyze impact on other services</button>
+            <button class="quick-prompt" onclick="fillPrompt(this)">Find similar bugs in codebase</button>
+            <button class="quick-prompt" onclick="fillPrompt(this)">Write a postmortem draft</button>
+            <button class="quick-prompt" onclick="fillPrompt(this)">Suggest a timeout retry strategy</button>
+            <button class="quick-prompt" onclick="fillPrompt(this)">Check Stripe changelog for related issues</button>
+          </div>
+
+          <div class="prompt-area-wrapper">
+            <textarea
+              class="prompt-area"
+              id="customPrompt"
+              placeholder="e.g. &quot;Find all places in the codebase where we catch exceptions without rolling back database transactions, and suggest fixes for each one&quot;"
+            ></textarea>
+          </div>
+
+          <div class="custom-agent-actions">
+            <button class="btn-run-custom" onclick="runCustomAgent()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Agent
+            </button>
+            <button class="btn-clear" onclick="document.getElementById('customPrompt').value=''">Clear</button>
+            <span class="hint-text">⌘↵ to run</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUILD LOGS TAB -->
+      <div class="tab-panel" id="panel-logs">
+        <div class="build-logs-toolbar">
+          <button class="log-filter active">All Runs</button>
+          <button class="log-filter">Failed</button>
+          <button class="log-filter">Agent Runs</button>
+          <div class="log-spacer"></div>
+          <div class="log-search">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-tertiary)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search logs…" />
+          </div>
+        </div>
+
+        <!-- Build run 1 -->
+        <div class="build-run-card expanded" id="run1">
+          <div class="build-run-header" onclick="toggleRun('run1')">
+            <div class="build-status-icon build-running">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+            </div>
+            <div class="build-run-info">
+              <div class="build-run-title">Root Cause Analyzer · Run #7 <span style="font-size:11px;background:var(--blue-light);color:var(--blue);padding:1px 6px;border-radius:8px;margin-left:6px">Agent</span></div>
+              <div class="build-run-meta">Started 2 min ago · Triggered by Shravan R.</div>
+            </div>
+            <div class="build-run-dur" style="color:var(--blue)">⏱ 1m 42s</div>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="log-terminal" id="log-run1">
+            <div class="log-line"><span class="log-time">00:00</span><span class="log-info">[init]   Loaded context: Bug #AB-4821, PaymentService.ts</span></div>
+            <div class="log-line"><span class="log-time">00:02</span><span class="log-info">[scan]   Traversing 847 files in src/services/…</span></div>
+            <div class="log-line"><span class="log-time">00:08</span><span class="log-success">[found]  PaymentService.ts:134 — catch block swallows TimeoutError</span></div>
+            <div class="log-line"><span class="log-time">00:12</span><span class="log-warn">[warn]   No rollback call found in catch block at line 134–139</span></div>
+            <div class="log-line"><span class="log-time">00:19</span><span class="log-info">[scan]   Checking OrderRepository for PENDING state cleanup…</span></div>
+            <div class="log-line"><span class="log-time">00:31</span><span class="log-error">[issue]  Order.setStatus('FAILED') never called on timeout path</span></div>
+            <div class="log-line"><span class="log-time">00:45</span><span class="log-info">[llm]    Generating structured root cause report…</span></div>
+            <div class="log-line"><span class="log-time">01:12</span><span class="log-success">[done]   Root cause report ready · 3 issues found · 2 fix suggestions</span></div>
+            <div class="log-line"><span class="log-time">01:42</span><span class="log-info">[run]    Agent still active — awaiting confirmation…</span></div>
+          </div>
+        </div>
+
+        <!-- Build run 2 -->
+        <div class="build-run-card" id="run2">
+          <div class="build-run-header" onclick="toggleRun('run2')">
+            <div class="build-status-icon build-failed">✕</div>
+            <div class="build-run-info">
+              <div class="build-run-title">CI Pipeline · main ← fix/payment-timeout <span style="font-size:11px;background:var(--red-light);color:var(--red);padding:1px 6px;border-radius:8px;margin-left:6px">Failed</span></div>
+              <div class="build-run-meta">Apr 8 · 14:22 · commit 3f8a91c</div>
+            </div>
+            <div class="build-run-dur">4m 18s</div>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="log-terminal" id="log-run2">
+            <div class="log-line"><span class="log-time">00:00</span><span class="log-dim">[ci]     Pipeline triggered on push to fix/payment-timeout</span></div>
+            <div class="log-line"><span class="log-time">00:12</span><span class="log-success">[lint]   ESLint passed (0 errors, 2 warnings)</span></div>
+            <div class="log-line"><span class="log-time">00:45</span><span class="log-success">[build]  TypeScript compilation succeeded</span></div>
+            <div class="log-line"><span class="log-time">01:30</span><span class="log-info">[test]   Running 214 unit tests…</span></div>
+            <div class="log-line"><span class="log-time">02:48</span><span class="log-error">[test]   FAIL PaymentService.spec.ts</span></div>
+            <div class="log-line"><span class="log-time">02:48</span><span class="log-error">         ● processCheckout › should rollback on timeout</span></div>
+            <div class="log-line"><span class="log-time">02:48</span><span class="log-error">           Expected: "FAILED" | Received: "PENDING"</span></div>
+            <div class="log-line"><span class="log-time">04:18</span><span class="log-error">[ci]     Pipeline FAILED · 1 test suite failed</span></div>
+          </div>
+        </div>
+
+        <!-- Build run 3 -->
+        <div class="build-run-card" id="run3">
+          <div class="build-run-header" onclick="toggleRun('run3')">
+            <div class="build-status-icon build-success">✓</div>
+            <div class="build-run-info">
+              <div class="build-run-title">Auto Code Fixer · Run #6 <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:8px;margin-left:6px">Agent</span></div>
+              <div class="build-run-meta">Apr 8 · 11:05 · Triggered by Shravan R.</div>
+            </div>
+            <div class="build-run-dur">1m 28s</div>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="log-terminal" id="log-run3">
+            <div class="log-line"><span class="log-time">00:00</span><span class="log-info">[init]   Loading bug context and existing fix suggestions…</span></div>
+            <div class="log-line"><span class="log-time">00:05</span><span class="log-info">[plan]   Identified 2 files to patch: PaymentService.ts, OrderRepository.ts</span></div>
+            <div class="log-line"><span class="log-time">00:22</span><span class="log-success">[patch]  Applied fix to PaymentService.ts line 134</span></div>
+            <div class="log-line"><span class="log-time">00:35</span><span class="log-success">[patch]  Added order.setStatus('FAILED') + rollback in catch block</span></div>
+            <div class="log-line"><span class="log-time">00:50</span><span class="log-success">[patch]  Added retry event publish to MessageQueueService</span></div>
+            <div class="log-line"><span class="log-time">01:10</span><span class="log-success">[pr]     PR #842 opened: fix: handle Stripe timeout with order rollback</span></div>
+            <div class="log-line"><span class="log-time">01:28</span><span class="log-success">[done]   Agent completed successfully</span></div>
+          </div>
+        </div>
+
+        <!-- Build run 4 -->
+        <div class="build-run-card" id="run4">
+          <div class="build-run-header" onclick="toggleRun('run4')">
+            <div class="build-status-icon build-success">✓</div>
+            <div class="build-run-info">
+              <div class="build-run-title">CI Pipeline · main ← fix/payment-timeout-v1 <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:8px;margin-left:6px">Passed</span></div>
+              <div class="build-run-meta">Apr 7 · 16:44 · commit d2c3e7a</div>
+            </div>
+            <div class="build-run-dur">3m 52s</div>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="log-terminal" id="log-run4">
+            <div class="log-line"><span class="log-time">00:00</span><span class="log-dim">[ci]     Pipeline triggered on push to fix/payment-timeout-v1</span></div>
+            <div class="log-line"><span class="log-time">00:11</span><span class="log-success">[lint]   ESLint passed (0 errors)</span></div>
+            <div class="log-line"><span class="log-time">00:42</span><span class="log-success">[build]  TypeScript compilation succeeded</span></div>
+            <div class="log-line"><span class="log-time">01:22</span><span class="log-info">[test]   Running 214 unit tests…</span></div>
+            <div class="log-line"><span class="log-time">03:05</span><span class="log-success">[test]   214 tests passed · 0 failed</span></div>
+            <div class="log-line"><span class="log-time">03:52</span><span class="log-success">[ci]     Pipeline PASSED ✓</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-content -->
+  </main>
+
+  <!-- ── COLUMN 3: Chat ── -->
+  <aside class="col-chat">
+    <div class="chat-header">
+      <div class="chat-title">
+        <span class="online-dot"></span>AI Assistant
+      </div>
+      <div class="chat-subtitle">Ask about this bug or any item</div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg msg-ai">
+        <div class="msg-bubble">
+          Hi Shravan! I've analyzed Bug #AB-4821. The payment timeout silently leaves orders in <strong>PENDING</strong> state. Want me to walk you through a fix?
+        </div>
+        <div class="msg-time">Just now</div>
+      </div>
+    </div>
+
+    <div class="chat-suggestions">
+      <div class="suggestions-label">Suggested questions</div>
+      <button class="suggestion-btn" onclick="askQuestion(this)">What's the blast radius of this bug?</button>
+      <button class="suggestion-btn" onclick="askQuestion(this)">How many users affected?</button>
+      <button class="suggestion-btn" onclick="askQuestion(this)">Show similar past bugs</button>
+      <button class="suggestion-btn" onclick="askQuestion(this)">What's the fastest fix?</button>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="chat-input-box">
+        <textarea
+          id="chatInput"
+          placeholder="Ask anything about this bug…"
+          rows="1"
+          onkeydown="handleChatKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="chat-send-btn" onclick="sendChat()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Running Overlay -->
+<div class="running-overlay" id="runningOverlay">
+  <div class="running-card">
+    <div class="spinner"></div>
+    <div class="running-title" id="runningTitle">Running Agent</div>
+    <div class="running-subtitle">Smart defaults are handling configuration. Sit back.</div>
+    <div class="running-log" id="runningLog"></div>
+    <button class="btn-cancel" onclick="hideRunningOverlay()">Cancel</button>
+  </div>
+</div>
+
+<script>
+/* ── WORK ITEMS DATA ── */
+const workItems = [
+  { id: 'AB-4821', title: 'Payment gateway timeout causes silent transaction failure on checkout', priority: 'critical', state: 'active', assignee: 'SR', selected: true },
+  { id: 'AB-4818', title: 'Cart total miscalculates when applying stacked discount codes', priority: 'high', state: 'active', assignee: 'AK' },
+  { id: 'AB-4815', title: 'Search results return deleted products in category filter', priority: 'high', state: 'testing', assignee: 'PM' },
+  { id: 'AB-4809', title: 'Profile picture upload fails on mobile Safari with HEIC format', priority: 'medium', state: 'active', assignee: 'SR' },
+  { id: 'AB-4803', title: 'Email verification link expires too early — 5 min instead of 24h', priority: 'high', state: 'new', assignee: 'LR' },
+  { id: 'AB-4797', title: 'Dashboard chart renders blank on first load in Safari 17', priority: 'medium', state: 'active', assignee: 'AK' },
+  { id: 'AB-4791', title: 'Bulk export CSV truncates product descriptions over 500 chars', priority: 'low', state: 'resolved', assignee: 'PM' },
+  { id: 'AB-4785', title: 'Two-factor auth bypass when using social login provider', priority: 'critical', state: 'active', assignee: 'SR' },
+  { id: 'AB-4779', title: 'Notification emails sent twice when webhook retries', priority: 'medium', state: 'testing', assignee: 'LR' },
+  { id: 'AB-4772', title: 'Currency formatting shows wrong symbol for EUR in checkout', priority: 'low', state: 'resolved', assignee: 'PM' },
+  { id: 'AB-4765', title: 'Admin pagination breaks at exactly 100 items', priority: 'medium', state: 'new', assignee: 'AK' },
+  { id: 'AB-4758', title: 'Session token not invalidated after password reset', priority: 'critical', state: 'active', assignee: 'SR' },
+];
+
+const stateClass = { active:'state-active', resolved:'state-resolved', new:'state-new', testing:'state-testing' };
+const stateLabel = { active:'Active', resolved:'Resolved', new:'New', testing:'Testing' };
+const priClass   = { critical:'pri-critical', high:'pri-high', medium:'pri-medium', low:'pri-low' };
+
+function renderWorkItems() {
+  const list = document.getElementById('workItemsList');
+  list.innerHTML = workItems.map((wi, i) => `
+    <div class="workitem-card ${wi.selected ? 'selected' : ''}" onclick="selectItem(${i})">
+      <div class="wi-top">
+        <span class="wi-id">${wi.id}</span>
+        <span class="wi-priority ${priClass[wi.priority]}" title="${wi.priority}"></span>
+      </div>
+      <div class="wi-title">${wi.title}</div>
+      <div class="wi-meta">
+        <span class="wi-state ${stateClass[wi.state]}">${stateLabel[wi.state]}</span>
+        <span class="wi-sep">·</span>
+        <span class="wi-assignee">${wi.assignee}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectItem(idx) {
+  workItems.forEach((w, i) => w.selected = (i === idx));
+  renderWorkItems();
+}
+
+renderWorkItems();
+
+/* ── TABS ── */
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+document.querySelectorAll('.filter-tab').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.log-filter').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.log-filter').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+/* ── BUILD LOG TOGGLE ── */
+function toggleRun(id) {
+  document.getElementById(id).classList.toggle('expanded');
+}
+
+/* ── QUICK PROMPTS ── */
+function fillPrompt(btn) {
+  document.getElementById('customPrompt').value = btn.textContent;
+  document.getElementById('customPrompt').focus();
+}
+
+/* ── CUSTOM AGENT ── */
+function runCustomAgent() {
+  const prompt = document.getElementById('customPrompt').value.trim();
+  if (!prompt) {
+    document.getElementById('customPrompt').focus();
+    return;
+  }
+  showRunningOverlay('Custom Agent');
+}
+
+document.getElementById('customPrompt').addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runCustomAgent();
+});
+
+/* ── RUNNING OVERLAY ── */
+const runningLogs = {
+  'Root Cause Analyzer': [
+    '[init]   Loading bug context from AB-4821…',
+    '[scan]   Traversing PaymentService.ts and dependencies…',
+    '[found]  Exception swallowed at PaymentService.ts:134',
+    '[llm]    Generating root cause report…',
+    '[done]   Report ready · 3 issues identified',
+  ],
+  'Auto Code Fixer': [
+    '[init]   Analyzing bug and fix candidates…',
+    '[plan]   2 files to patch identified',
+    '[patch]  Fixing catch block in PaymentService.ts…',
+    '[patch]  Adding rollback + retry event publish…',
+    '[pr]     Opening pull request on GitHub…',
+    '[done]   PR #843 created successfully',
+  ],
+  'Regression Test Writer': [
+    '[init]   Loading test suite context…',
+    '[gen]    Writing unit test: timeout throws → order FAILED state',
+    '[gen]    Writing integration test: retry event published on timeout',
+    '[gen]    Writing edge case: duplicate charge prevention',
+    '[done]   3 test cases written · coverage +4.2%',
+  ],
+  'Quick Fix': [
+    '[init]   Scanning for quick fix opportunity…',
+    '[found]  Minimal change: add order.setStatus("FAILED") in catch block',
+    '[patch]  Applied 3-line patch to PaymentService.ts',
+    '[done]   Quick fix applied — review recommended before merge',
+  ],
+  'Custom Agent': [
+    '[init]   Parsing your instructions…',
+    '[plan]   Building execution plan for custom task…',
+    '[run]    Executing with smart defaults…',
+    '[done]   Task completed',
+  ],
+};
+
+let overlayTimer = null;
+function showRunningOverlay(agentName) {
+  const overlay = document.getElementById('runningOverlay');
+  const title   = document.getElementById('runningTitle');
+  const log     = document.getElementById('runningLog');
+  title.textContent = agentName + ' · Running…';
+  log.innerHTML = '';
+  overlay.classList.add('active');
+
+  const lines = runningLogs[agentName] || runningLogs['Custom Agent'];
+  let i = 0;
+  clearInterval(overlayTimer);
+  overlayTimer = setInterval(() => {
+    if (i < lines.length) {
+      const div = document.createElement('div');
+      div.textContent = '› ' + lines[i];
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+      i++;
+    } else {
+      clearInterval(overlayTimer);
+      title.textContent = agentName + ' · Completed ✓';
+    }
+  }, 900);
+}
+
+function hideRunningOverlay() {
+  clearInterval(overlayTimer);
+  document.getElementById('runningOverlay').classList.remove('active');
+}
+
+/* ── CHAT ── */
+const chatResponses = {
+  "What's the blast radius of this bug?": "This affects all checkout flows where payment takes >5s. Based on Stripe P95 latency data, ~0.4% of transactions hit this window daily — roughly 120 orders/day in PENDING limbo.",
+  "How many users affected?": "Since Apr 3 we see 487 orders stuck in PENDING state. 23 customer support tickets opened. 12 duplicate charge complaints. Revenue impact ~$14,200.",
+  "Show similar past bugs": "Found 2 similar: AB-3902 (webhook timeout silently dropped, Mar 2025) and AB-3741 (DB write swallowed in catch block). Both fixed by adding explicit failure state + retry publish.",
+  "What's the fastest fix?": "Fastest fix: add `order.setStatus('FAILED')` + `await retryQueue.publish(orderId)` in the catch block at PaymentService.ts:134. ~3 lines of code. The Auto Code Fixer agent can generate and PR this in ~90 seconds.",
+};
+
+function askQuestion(btn) {
+  const q = btn.textContent;
+  appendMsg(q, 'user');
+  setTimeout(() => {
+    const resp = chatResponses[q] || "Let me look into that for you. Give me a moment to analyze the context…";
+    appendMsg(resp, 'ai');
+  }, 600);
+}
+
+function appendMsg(text, role) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  div.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">Just now</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  appendMsg(text, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+  setTimeout(() => {
+    appendMsg("I'm analyzing your question about this bug. Based on the context I have from AB-4821 and related work items, here's what I found…", 'ai');
+  }, 700);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+}
+</script>
+</body>
+</html>
