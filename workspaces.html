@@ -57,39 +57,37 @@
 
     /* ── SHARED TOP NAV ── */
     .topnav {
-      height: 52px;
-      background: #111318;
-      border-bottom: 1px solid #21262d;
-      display: flex; align-items: center;
-      padding: 0 20px; gap: 0;
+      height: 52px; background: #ffffff; border-bottom: 1px solid #e8eaed;
+      display: flex; align-items: center; padding: 0 20px; gap: 0;
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      box-shadow: 0 1px 3px rgba(60,64,67,.08);
     }
     .topnav-logo {
       display: flex; align-items: center; gap: 9px;
-      font-size: 14px; font-weight: 700; color: #f0f2f5;
+      font-size: 14px; font-weight: 700; color: #202124;
       letter-spacing: -.3px; text-decoration: none;
       padding-right: 20px; flex-shrink: 0;
     }
     .topnav-logo-mark {
       width: 26px; height: 26px; border-radius: 6px;
-      background: linear-gradient(135deg, #4f88ff, #7c5ff5);
+      background: linear-gradient(135deg, #4285f4, #7c5ff5);
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .topnav-divider { width: 1px; height: 20px; background: #2a2f3e; margin: 0 4px; flex-shrink: 0; }
+    .topnav-divider { width: 1px; height: 20px; background: #e8eaed; margin: 0 4px; flex-shrink: 0; }
     .topnav-nav { display: flex; align-items: stretch; height: 100%; gap: 0; margin-left: 4px; }
     .topnav-navlink {
       display: flex; align-items: center;
-      font-size: 13px; font-weight: 500; color: #8b92a8;
+      font-size: 13px; font-weight: 500; color: #5f6368;
       padding: 0 14px; text-decoration: none;
       border-bottom: 2px solid transparent;
       transition: color .15s, border-color .15s; white-space: nowrap;
     }
-    .topnav-navlink:hover { color: #e0e3ec; }
-    .topnav-navlink.active { color: #fff; border-bottom-color: #4f88ff; }
+    .topnav-navlink:hover { color: #202124; }
+    .topnav-navlink.active { color: #1a73e8; border-bottom-color: #1a73e8; }
     .topnav-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
     .topnav-avatar {
       width: 28px; height: 28px; border-radius: 50%;
-      background: linear-gradient(135deg, #4f88ff, #22c55e);
+      background: linear-gradient(135deg, #4285f4, #34a853);
       display: flex; align-items: center; justify-content: center;
       color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0;
     }
@@ -97,9 +95,9 @@
       width: 30px; height: 30px; border-radius: 5px;
       border: none; background: transparent; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      color: #8b92a8; transition: background .15s, color .15s;
+      color: #5f6368; transition: background .15s, color .15s;
     }
-    .topnav-btn-icon:hover { background: #1e2333; color: #e0e3ec; }
+    .topnav-btn-icon:hover { background: #f1f3f4; color: #202124; }
 
     /* ── LAYOUT ── */
     .app { display: flex; height: calc(100vh - 52px); margin-top: 52px; }
