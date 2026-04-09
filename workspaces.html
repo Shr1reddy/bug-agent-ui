@@ -6,40 +6,42 @@
   <title>Developer Portal — Workspaces</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d0f14;
-      --bg-2: #141820;
-      --bg-3: #1a1f2e;
-      --surface: #1e2333;
-      --surface-2: #252b3d;
-      --surface-3: #2c334a;
-      --border: #2e3549;
-      --border-subtle: #242a3b;
-      --blue: #4f88ff;
-      --blue-dim: #1e3a6e;
-      --blue-glow: rgba(79,136,255,.15);
-      --green: #22c55e;
-      --green-dim: #14532d;
-      --green-glow: rgba(34,197,94,.12);
-      --red: #f87171;
-      --red-dim: #450a0a;
-      --red-glow: rgba(248,113,113,.12);
-      --yellow: #fbbf24;
-      --yellow-dim: #451a03;
-      --purple: #a78bfa;
-      --purple-dim: #2e1065;
-      --text-primary: #e8eaf0;
-      --text-secondary: #8b92a8;
-      --text-tertiary: #555e7a;
-      --text-blue: #6b9fff;
-      --radius: 6px;
+      --bg: #f8f9fa;
+      --bg-2: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f1f3f4;
+      --surface-3: #e8eaed;
+      --border: #e8eaed;
+      --border-subtle: #f1f3f4;
+      --blue: #1a73e8;
+      --blue-dim: #e8f0fe;
+      --blue-glow: rgba(26,115,232,.1);
+      --green: #137333;
+      --green-chip: #34a853;
+      --green-dim: #e6f4ea;
+      --green-glow: rgba(52,168,83,.1);
+      --red: #c5221f;
+      --red-dim: #fce8e6;
+      --red-glow: rgba(197,34,31,.08);
+      --yellow: #b45309;
+      --yellow-dim: #fef3c7;
+      --purple: #7c3aed;
+      --purple-dim: #ede9fe;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-tertiary: #9aa0a6;
+      --text-blue: #1a73e8;
+      --shadow: 0 1px 3px rgba(60,64,67,.12), 0 1px 2px rgba(60,64,67,.08);
+      --shadow-md: 0 2px 6px rgba(60,64,67,.15), 0 1px 4px rgba(60,64,67,.1);
+      --radius: 8px;
       --radius-sm: 4px;
       --radius-lg: 10px;
-      --font: 'Inter', system-ui, sans-serif;
+      --font: 'Inter', 'Google Sans', system-ui, sans-serif;
       --font-mono: 'JetBrains Mono', 'Courier New', monospace;
       --transition: .15s ease;
     }
@@ -213,7 +215,7 @@
       white-space: nowrap;
     }
     .btn-primary { background: var(--blue); color: #fff; }
-    .btn-primary:hover { background: #3a72e8; box-shadow: 0 0 0 3px var(--blue-glow); }
+    .btn-primary:hover { background: #1557b0; box-shadow: 0 0 0 3px var(--blue-dim); }
     .btn-ghost {
       background: transparent; color: var(--text-secondary);
       border: 1px solid var(--border);
@@ -242,10 +244,10 @@
     }
     .stat-chip.all   { background: var(--surface-2); color: var(--text-secondary); border-color: var(--border); }
     .stat-chip.all.selected   { background: var(--surface-3); color: var(--text-primary); border-color: var(--border); }
-    .stat-chip.running { color: var(--green); background: var(--green-glow); border-color: rgba(34,197,94,.2); }
+    .stat-chip.running { color: var(--green); background: var(--green-dim); border-color: rgba(52,168,83,.3); }
     .stat-chip.stopped { color: var(--text-secondary); background: var(--surface-2); border-color: var(--border); }
-    .stat-chip.failed  { color: var(--red); background: var(--red-glow); border-color: rgba(248,113,113,.2); }
-    .stat-chip.starting { color: var(--blue); background: var(--blue-glow); border-color: rgba(79,136,255,.2); }
+    .stat-chip.failed  { color: var(--red); background: var(--red-dim); border-color: rgba(197,34,31,.25); }
+    .stat-chip.starting { color: var(--blue); background: var(--blue-dim); border-color: rgba(26,115,232,.3); }
     .stat-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
     .stat-dot.pulse { animation: pulse 1.8s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
@@ -320,11 +322,11 @@
       padding: 3px 9px; border-radius: 10px;
       font-size: 11px; font-weight: 500; white-space: nowrap;
     }
-    .ws-status.running  { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+    .ws-status.running  { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,168,83,.3); }
     .ws-status.stopped  { background: var(--surface-2); color: var(--text-secondary); border: 1px solid var(--border); }
-    .ws-status.starting { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(79,136,255,.2); }
-    .ws-status.failed   { background: var(--red-glow); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
-    .ws-status.deleting { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(251,191,36,.2); }
+    .ws-status.starting { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(26,115,232,.3); }
+    .ws-status.failed   { background: var(--red-dim); color: var(--red); border: 1px solid rgba(197,34,31,.25); }
+    .ws-status.deleting { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(180,83,9,.2); }
     .ws-status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
     .ws-status.running .ws-status-dot  { animation: pulse 1.8s ease-in-out infinite; }
     .ws-status.starting .ws-status-dot { animation: pulse 1s ease-in-out infinite; }
@@ -401,16 +403,16 @@
     /* ── CREATE WORKSPACE MODAL ── */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.7); z-index: 200;
+      background: rgba(60,64,67,.45); z-index: 200;
       align-items: center; justify-content: center;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(3px);
     }
     .modal-overlay.active { display: flex; }
     .modal {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius-lg); width: 540px; max-width: 95vw;
       max-height: 90vh; overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      box-shadow: 0 8px 40px rgba(60,64,67,.2), 0 2px 10px rgba(60,64,67,.12);
     }
     .modal-header {
       padding: 20px 24px 16px;
@@ -424,7 +426,7 @@
       color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
       transition: background var(--transition);
     }
-    .modal-close:hover { background: var(--surface-3); color: var(--text-primary); }
+    .modal-close:hover { background: var(--surface-2); color: var(--text-primary); }
 
     .modal-body { padding: 20px 24px; }
     .form-label {
@@ -447,7 +449,7 @@
       border: 1.5px solid var(--border); background: var(--bg-2);
       transition: all var(--transition); display: flex; align-items: center; gap: 10px;
     }
-    .template-option:hover { border-color: var(--blue); background: var(--blue-dim); }
+    .template-option:hover { border-color: var(--blue); background: var(--blue-dim); color: var(--blue); }
     .template-option.selected { border-color: var(--blue); background: var(--blue-dim); }
     .template-option-icon { font-size: 20px; flex-shrink: 0; }
     .template-option-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
@@ -473,7 +475,7 @@
     }
     .drawer-overlay.active .drawer { transform: translateX(0); }
     .drawer-scrim {
-      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      position: fixed; inset: 0; background: rgba(60,64,67,.35);
       backdrop-filter: blur(2px); z-index: 155;
       display: none;
     }
@@ -528,7 +530,7 @@
       background: var(--surface); border: 1px solid var(--border);
       cursor: pointer; transition: all var(--transition);
     }
-    .app-item:hover { border-color: var(--blue); background: var(--blue-dim); }
+    .app-item:hover { border-color: var(--blue); background: var(--blue-dim); color: var(--blue); }
     .app-item-icon {
       width: 28px; height: 28px; border-radius: var(--radius-sm);
       background: var(--surface-3); display: flex; align-items: center; justify-content: center;
